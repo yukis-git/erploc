@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rust:
+    name: Rust (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5 # the Python extension crate is linted too (PyO3 build script)
+        with:
+          python-version: "3.12"
+      - name: Toolchain
+        run: rustup toolchain install stable --profile minimal --component rustfmt --component clippy
+      - name: fmt
+        run: cargo fmt --all --check
+      - name: clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      # The fixtures were recorded on one platform (Apple aarch64). There the tests are exact; on other platforms they compare
+      # selections by objective key and estimates within 100x the tolerance (`erploc_testkit::strict`, see verify/README.md).
+      - name: test
+        run: cargo test --release --no-fail-fast
+      - name: doc
+        run: cargo doc --workspace --no-deps
+        env:
+          RUSTDOCFLAGS: -D warnings
+
+  msrv:
+    name: Rust 1.80 builds and tests the library crates and the CLI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup toolchain install 1.80.1 --profile minimal
+      - run: cargo +1.80.1 test --release --no-fail-fast -p erploc-linalg -p erploc-core -p erploc-est -p erploc-place -p erploc-testkit -p erploc-cli --locked
+
+  python:
+    name: Python ${{ matrix.python }} (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, python: "3.9" }
+          - { os: macos-latest, python: "3.13" }
+          - { os: windows-latest, python: "3.12" }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Build and install the extension (maturin through pip)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install numpy pytest .
+      - name: pytest
+        run: python -m pytest tests/py -q
+      - name: End-to-end example (runs it; the numbers are not asserted)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          python -m pip install eqar --no-index --find-links https://github.com/yukis-git/eqar/releases/expanded_assets/v0.1.0
+          python examples/end_to_end.py

@@ -1,0 +1,18 @@
+[package]
+name = "erploc-est"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+erploc-linalg = { path = "../erploc-linalg" }
+erploc-core = { path = "../erploc-core" }
+
+[dev-dependencies]
+erploc-testkit = { path = "../erploc-testkit" }

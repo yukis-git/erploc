@@ -1,0 +1,33 @@
+[package]
+name = "erploc-py"
+description = "Python bindings for erploc (equirectangular localisation and marker placement)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+publish = false
+
+# No `[lints] workspace = true`: PyO3's macros expand to unsafe code, which `unsafe_code = "forbid"` rejects.
+# This crate writes no `unsafe` of its own.
+
+[lib]
+name = "_erploc"
+crate-type = ["cdylib"]
+# The extension module only links inside a Python process; its behaviour is tested from Python (tests/py).
+test = false
+doctest = false
+
+[features]
+# Enabled by maturin (see pyproject.toml); off for `cargo clippy` / `cargo doc`.
+extension-module = ["pyo3/extension-module"]
+
+[dependencies]
+erploc-linalg = { path = "../erploc-linalg" }
+erploc-core = { path = "../erploc-core" }
+erploc-est = { path = "../erploc-est" }
+erploc-place = { path = "../erploc-place" }
+erploc-cli = { path = "../erploc-cli" }
+numpy = "0.25"
+pyo3 = { version = "0.25", features = ["abi3-py39"] }

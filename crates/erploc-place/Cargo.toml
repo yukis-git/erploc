@@ -1,0 +1,23 @@
+[package]
+name = "erploc-place"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+# optional, off by default: the positions of `FastEval::neighbourhood` on std threads, no dependency
+parallel = []
+
+[dependencies]
+erploc-linalg = { path = "../erploc-linalg" }
+erploc-core = { path = "../erploc-core" }
+erploc-est = { path = "../erploc-est" }
+
+[dev-dependencies]
+erploc-testkit = { path = "../erploc-testkit" }

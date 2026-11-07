@@ -1,0 +1,25 @@
+[workspace]
+resolver = "2"
+members = ["crates/erploc-linalg", "crates/erploc-testkit", "crates/erploc-core", "crates/erploc-est", "crates/erploc-place", "crates/erploc-cli", "crates/erploc-py"]
+# `cargo build/test` at the root covers the pure-Rust crates; the Python extension is built by maturin (or with `--workspace`).
+default-members = ["crates/erploc-linalg", "crates/erploc-testkit", "crates/erploc-core", "crates/erploc-est", "crates/erploc-place", "crates/erploc-cli"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+license = "MIT OR Apache-2.0"
+authors = ["Yuki Sakata"]
+repository = "https://github.com/yukis-git/erploc"
+
+[workspace.dependencies]
+# serde family: used by crates/erploc-cli ONLY (the four computation crates keep zero external dependencies)
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+
+[profile.release]
+debug = 1

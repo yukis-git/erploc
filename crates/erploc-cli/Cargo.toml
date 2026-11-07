@@ -1,0 +1,34 @@
+[package]
+name = "erploc-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+rust-version = "1.80"
+
+[lints]
+workspace = true
+
+[lib]
+name = "erploc_cli"
+path = "src/lib.rs"
+
+[[bin]]
+name = "erploc"
+path = "src/main.rs"
+
+[features]
+# Hidden `--selftest-panic` flag (exit-code test of the catch_unwind net); not part of the public interface.
+selftest = []
+
+[dependencies]
+erploc-linalg = { path = "../erploc-linalg" }
+erploc-core = { path = "../erploc-core" }
+erploc-est = { path = "../erploc-est" }
+erploc-place = { path = "../erploc-place" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+erploc-testkit = { path = "../erploc-testkit" }
